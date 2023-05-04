@@ -11,3 +11,4 @@ chromedriver.log
 
 # Environment
 env/
+myenv/
