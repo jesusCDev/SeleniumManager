@@ -79,6 +79,7 @@ The class also provides several utility methods, such as:
 - **Firefox support**: Add support for Firefox browser by implementing the necessary configurations and options.
 - **Proxy username and password verification**: Implement support for verifying the username and password for proxy authentication.
 - **Auto ChromeDriver download**: Implement an automatic download mechanism for ChromeDriver, eliminating the need for manual download and installation.
+- **System Specific Driver Selector**: Automatically select the appropriate chromedriver based on the operating system. It detects the system type (Linux or Windows) and sets the chromedriver path accordingly, allowing seamless integration on different systems.
 
 ## Dependencies
 
