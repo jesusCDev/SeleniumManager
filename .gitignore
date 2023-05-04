@@ -1,0 +1,13 @@
+# Python
+*.pyc
+__pycache__/
+
+# Chrome WebDriver
+chromedriver.log
+
+# IDE specific
+.vscode/
+*.code-workspace
+
+# Environment
+env/
