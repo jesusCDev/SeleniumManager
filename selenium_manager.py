@@ -6,6 +6,8 @@ import random
 import traceback
 import platform
 
+import yaml
+
 from pre_generated_headers import header_values
 
 # The SeleniumBrowserManager class is designed to create and manage Selenium browser instances.
@@ -19,9 +21,25 @@ class SeleniumBrowserManager:
     
     # @chrome_drive_path: The path to the Chrome WebDriver executable.
     # @binary_chrome_path: The path to the Chrome binary executable.
-    def __init__(self, chrome_drive_path: str, binary_chrome_path: str):
+    def __init__(self, chrome_drive_path: str, binary_chrome_path: str = ""):
         self.chrome_driver_path = chrome_drive_path
         self.binary_chrome_path = binary_chrome_path
+        
+    def __init__(self):
+        config = self.load_config("config.yaml")
+        
+        self.chrome_driver_path = config["chrome_drive_path"]
+        self.binary_chrome_path = config["binary_chrome_path"]
+
+    def load_config(file_path):
+        with open(file_path, 'r') as config_file:
+            try:
+                config = yaml.safe_load(config_file)
+            except yaml.YAMLError as exc:
+                print(f"Error in reading the configuration file: {exc}")
+                config = None
+
+        return config
          
     def create_selenium_browser(self, auto_timeout: int = 5, headless: bool = True, proxy: str = None, window_size: str = 'window-size=1400,2800', clear_cache: bool = False):
             
@@ -70,7 +88,8 @@ class SeleniumBrowserManager:
         chrome_options.add_argument('--disable-browser-side-navigation')
         
         # Sets the location of the Chrome binary executable
-        chrome_options.binary_location = self.binary_chrome_path
+        if self.binary_chrome_path:
+            chrome_options.binary_location = self.binary_chrome_path
         
         # Enables headless mode if the 'headless' parameter is set to True
         if headless:

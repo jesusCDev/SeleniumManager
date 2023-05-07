@@ -1,0 +1,3 @@
+# * If empty string, it will use the chrome_binary_path system variable
+chrome_binary_path: /path/to/chrome/binary
+chrome_driver_path: /path/to/chrome/driver
