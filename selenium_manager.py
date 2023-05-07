@@ -31,6 +31,7 @@ class SeleniumBrowserManager:
         self.chrome_driver_path = config["chrome_drive_path"]
         self.binary_chrome_path = config["binary_chrome_path"]
 
+    @staticmethod
     def load_config(file_path):
         with open(file_path, 'r') as config_file:
             try:
