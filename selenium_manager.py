@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 from selenium.webdriver.chrome.service import Service
 
-from random import randint
+import random
 import traceback
 import platform
 
@@ -73,7 +73,8 @@ class SeleniumBrowserManager:
         chrome_options.binary_location = self.binary_chrome_path
         
         # Enables headless mode if the 'headless' parameter is set to True
-        chrome_options.add_argument('--headless' if headless else '')
+        if headless:
+            chrome_options.add_argument('--headless')
         
         # Sets the window size for the browser, defaults to 1400x2800 if not specified
         chrome_options.add_argument(window_size)
