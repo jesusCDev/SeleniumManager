@@ -7,7 +7,7 @@ Selenium Browser Manager is a Python class designed to create and manage Seleniu
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your_username/selenium-browser-manager.git
+   git clone https://github.com/jesuscdev/selenium-browser-manager.git
    ```
 
 2. Navigate to the project directory:
