@@ -7,8 +7,9 @@ import traceback
 import platform
 
 import yaml
+import os
 
-from pre_generated_headers import header_values
+from .pre_generated_headers import header_values
 
 # The SeleniumBrowserManager class is designed to create and manage Selenium browser instances.
 # It includes several methods to set up browser configuration, such as user agents, proxies, and caching.
@@ -16,20 +17,21 @@ from pre_generated_headers import header_values
 class SeleniumBrowserManager:
     
     chrome_driver_path: str
-    binary_chrome_path: str
+    chrome_binary_path: str
     selected_header_value: str
     
     # @chrome_drive_path: The path to the Chrome WebDriver executable.
-    # @binary_chrome_path: The path to the Chrome binary executable.
-    def __init__(self, chrome_drive_path: str, binary_chrome_path: str = ""):
+    # @chrome_binary_path: The path to the Chrome binary executable.
+    def __init__(self, chrome_drive_path: str, chrome_binary_path: str = ""):
         self.chrome_driver_path = chrome_drive_path
-        self.binary_chrome_path = binary_chrome_path
+        self.chrome_binary_path = chrome_binary_path
         
     def __init__(self):
-        config = self.load_config("config.yaml")
-        
-        self.chrome_driver_path = config["chrome_drive_path"]
-        self.binary_chrome_path = config["binary_chrome_path"]
+        config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "SeleniumManager", "config.yaml")
+        config = self.load_config(config_path)
+
+        self.chrome_driver_path = str(config["chrome_driver_path"])
+        self.chrome_binary_path = str(config["chrome_binary_path"])
 
     @staticmethod
     def load_config(file_path):
@@ -42,26 +44,27 @@ class SeleniumBrowserManager:
 
         return config
          
-    def create_selenium_browser(self, auto_timeout: int = 5, headless: bool = True, proxy: str = None, window_size: str = 'window-size=1400,2800', clear_cache: bool = False):
-            
+    def create_browser(self, timeout: int = 5, headless: bool = True, proxy: str = None, window_size: str = 'window-size=1400,2800', clear_cache: bool = False):
+        # Main function to create and configure a browser instance  
         chrome_options = webdriver.ChromeOptions()
 
-        chrome_options = self.setup_chrome_options_arguments(chrome_options, window_size, headless)
-        capabilities = self.setup_proxy(webdriver, chrome_options, proxy)
+        chrome_options = self._configure_chrome_options(chrome_options, window_size, headless)
+        capabilities = self._configure_proxy(webdriver, chrome_options, proxy)
 
-        self.setup_user_agents(chrome_options)
-        self.setup_clear_cache(clear_cache)
+        self._configure_user_agents(chrome_options)
+        self._configure_cache(clear_cache)
 
         chrome_service = Service(self.chrome_driver_path)
 
         browser = webdriver.Chrome(service=chrome_service, options=chrome_options, desired_capabilities=capabilities)
 
-        self.setup_default_timeout(browser, auto_timeout)
-        self.clear_cache_browser(clear_cache, browser)
+        self._configure_default_timeout(browser, timeout)
+        self._clear_browser_cache(clear_cache, browser)
 
         return browser
 
-    def setup_chrome_options_arguments(self, chrome_options, window_size, headless):
+    def _configure_chrome_options(self, chrome_options, window_size, headless):
+        # Configures Chrome options for the browser instance
         # Bypass OS security model, necessary for running a headless environment
         chrome_options.add_argument('--no-sandbox')
         
@@ -89,8 +92,8 @@ class SeleniumBrowserManager:
         chrome_options.add_argument('--disable-browser-side-navigation')
         
         # Sets the location of the Chrome binary executable
-        if self.binary_chrome_path:
-            chrome_options.binary_location = self.binary_chrome_path
+        if self.chrome_binary_path:
+            chrome_options.binary_location = self.chrome_binary_path
         
         # Enables headless mode if the 'headless' parameter is set to True
         if headless:
@@ -101,8 +104,9 @@ class SeleniumBrowserManager:
 
         return chrome_options
 
-    def setup_proxy(self, webdriver, chrome_options, proxy):
-        # Set up desired capabilities for Chrome WebDriver
+    @staticmethod
+    def _configure_proxy(webdriver, chrome_options, proxy):
+        # Configures the proxy settings for the browser instance
         capabilities = webdriver.DesiredCapabilities.CHROME
 
         # Check if the 'proxy' parameter is not empty
@@ -142,21 +146,24 @@ class SeleniumBrowserManager:
 
         return capabilities
 
-    def setup_user_agents(self, chrome_options):
-        user_agent = self.get_random_user_agent()
+    def _configure_user_agents(self, chrome_options):
+        # Configures the user agent settings for the browser instance
+        user_agent = self._get_random_user_agent()
         self.selected_header_value = user_agent
         chrome_options.add_argument(f'user-agent={user_agent}')
     
     @staticmethod
-    def setup_default_timeout(browser: webdriver.Chrome, auto_timeout: int):
+    def _configure_default_timeout(browser: webdriver.Chrome, timeout: int):
+        # Configures the default timeouts for the browser instance
         SECONDS = 60
-        auto_timeout = auto_timeout * SECONDS
+        timeout = timeout * SECONDS
             
-        browser.set_page_load_timeout(auto_timeout)
-        browser.implicitly_wait(auto_timeout)
+        browser.set_page_load_timeout(timeout)
+        browser.implicitly_wait(timeout)
         
     @staticmethod
-    def setup_clear_cache(clear_cache: bool):
+    def _configure_cache(clear_cache: bool):
+        # Configures the cache settings for the browser instance
         if clear_cache:
             # Disables the application cache to prevent storing web application data.
             chrome_options.add_argument('--disable-application-cache')
@@ -171,7 +178,8 @@ class SeleniumBrowserManager:
             chrome_options.add_experimental_option('prefs', prefs)
 
     @staticmethod
-    def clear_cache_browser(clear_cache: bool, browser: webdriver.Chrome):
+    def _clear_browser_cache(clear_cache: bool, browser: webdriver.Chrome):
+        # Clears the browser cache if clear_cache is set to True
         if clear_cache:
             # Executes a Chrome DevTools Protocol command to disable the cache.
             # This command disables caching of all resources for the lifetime of the browser.
@@ -181,18 +189,22 @@ class SeleniumBrowserManager:
             browser.delete_all_cookies()
         
     @staticmethod
-    def get_random_user_agent():
+    def _get_random_user_agent():
+        # Returns a random user agent string from pre_generated_headers
         return random.choice(header_values)['User-Agent']
         
     @staticmethod
     def get_user_agent_values(index: int):
+        # Returns a specific user agent string from pre_generated_headers by index
         return header_values[index]['User-Agent'];
     
     def get_selected_header_value(self):
+        # Returns the selected user agent string for the browser instance
         return self.selected_header_value
     
     @staticmethod
     def close_selenium_browser(browser: webdriver.Chrome):
+        # Closes the browser instance and handles any exceptions
         try:
             browser.quit()
         except Exception as e:
@@ -200,7 +212,7 @@ class SeleniumBrowserManager:
     
     @staticmethod
     def print_current_ip_address(browser: webdriver.Chrome):
-        # * Generally used for verifying proxy
+        # Prints the current IP address of the browser instance, mainly for verifying proxy settings
         ip_check_site = 'http://getip.c14.workers.dev/'
         
         try:

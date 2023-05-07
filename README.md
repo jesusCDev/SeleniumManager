@@ -2,6 +2,21 @@
 
 Selenium Browser Manager is a Python class designed to create and manage Selenium browser instances. It includes several methods to set up browser configurations, such as user agents, proxies, and caching. It also provides methods for managing browser instances, such as opening and closing browsers.
 
+
+## Importance of the YAML Configuration File
+
+The `config.yaml` file is an essential part of this project, as it allows you to specify the paths to the Chrome WebDriver and Chrome binary executables. By providing these paths, the Selenium Browser Manager can properly launch and manage browser instances using the provided configurations.
+
+### Example YAML Configuration
+
+```yaml
+# If empty string, it will use the chrome_binary_path system variable
+chrome_binary_path: /path/to/chrome/binary
+chrome_driver_path: /path/to/chrome/driver
+```
+
+Make sure to generate and update the `config.yaml` file with the appropriate paths for your system before running the Selenium Browser Manager.
+
 ## Installation
 
 1. Clone the repository:
@@ -87,6 +102,7 @@ This program requires the following Python libraries:
 
 - Selenium: `pip install selenium`
 - Requests: `pip install requests`
+- Requests: `pip install pyyaml`
 
 The dependencies are listed in the `requirements.txt` file. You can install them using the following command:
 
